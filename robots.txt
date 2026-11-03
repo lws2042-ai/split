@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://split.wonseok.ai.kr/sitemap.xml

@@ -1,326 +1,1042 @@
 <!doctype html>
 <html lang="ko">
-<head>
-<meta charset="utf-8">
-<meta name="theme-color" content="#0b1020">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>뒷풀이 정산기</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
-<style>
-/* Layout: 한 줄 세로 흐름 — 멤버 → 차수 → 설정 → 영수증형 결과.
+  <head>
+    <meta charset="utf-8" />
+    <meta name="theme-color" content="#0b1020" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <title>뒷풀이 정산기 - 술값·회식비 N빵 계산기</title>
+    <meta
+      name="description"
+      content="1차 밥, 2차 술, 3차 카페까지 차수별 참석자와 술 안 마신 사람을 체크하면 한 사람당 낼 돈을 자동으로 계산하는 무료 정산기. 회식·동호회 뒷풀이 N분의 1 정산을 단톡방 링크로 공유하세요."
+    />
+    <link rel="canonical" href="https://split.wonseok.ai.kr/" />
+    <meta name="robots" content="index,follow" />
+
+    <!-- 카카오톡·SNS 링크 미리보기 -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="뒷풀이 정산기" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:url" content="https://split.wonseok.ai.kr/" />
+    <meta property="og:title" content="뒷풀이 정산기 - 술값·회식비 N빵 계산기" />
+    <meta
+      property="og:description"
+      content="차수별 참석자, 술 안 마신 사람, 선후배 차등까지 자동 계산. 결과는 링크 하나로 단톡방에 공유."
+    />
+    <meta property="og:image" content="https://split.wonseok.ai.kr/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "뒷풀이 정산기",
+        "url": "https://split.wonseok.ai.kr/",
+        "description": "차수별 참석자와 술 안 마신 사람을 반영해 회식·뒷풀이 비용을 N분의 1로 나누는 정산 계산기",
+        "applicationCategory": "FinanceApplication",
+        "operatingSystem": "All",
+        "inLanguage": "ko",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "KRW" }
+      }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap"
+    />
+    <style>
+      /* Layout: 한 줄 세로 흐름 — 멤버 → 차수 → 설정 → 영수증형 결과.
    밤 술집 분위기의 어두운 바탕 + 밤하늘 파랑·맥주 호박색 포인트, 결과만 밝은 종이 영수증 */
-:root{
-  --bg:#0b1020; --surface:#141a2b; --surface-2:#1b2236; --line:#283149; --fg:#e8ecf6; --muted:#8b95ad;
-  --blue:#6aa8ff; --blue-soft:rgba(106,168,255,.14); --amber:#f0b14e; --amber-soft:rgba(240,177,78,.14);
-  --coffee:#d39a6a; --etc:#f08bb5; --danger:#ff8a7a;
-  --paper:#f4f6fb; --ink:#161b2a; --ink-muted:#646b7d; --ink-line:#d5dbe8; --ink-blue:#1f5fbf; --ink-amber:#a26510;
-  --display:"Black Han Sans","IBM Plex Sans KR",system-ui,sans-serif;
-  --body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
-  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
-  color-scheme:dark;
-}
-*{box-sizing:border-box}
-html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg)}
-body{margin:0;min-height:100vh;color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.5;
-  background:
-    radial-gradient(600px 380px at 0% -5%, rgba(240,177,78,.13), transparent 70%),
-    radial-gradient(520px 360px at 100% 0%, rgba(106,168,255,.11), transparent 70%),
-    var(--bg);
-  background-attachment:fixed}
-.wrap{max-width:640px;margin:0 auto;padding-block:32px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:28px;counter-reset:step}
-header .kicker{font-size:12px;font-weight:700;letter-spacing:.16em;color:var(--amber);margin:0 0 6px}
-header h1{font-family:var(--display);font-weight:400;font-size:40px;line-height:1.1;margin:0;letter-spacing:.01em;color:var(--fg)}
-header h1 span{color:var(--blue)}
-header p{margin:8px 0 0;color:var(--muted);font-size:14px}
-.banner{margin-top:12px;background:var(--blue-soft);color:var(--blue);border:1px solid rgba(106,168,255,.3);border-radius:10px;padding:10px 12px;font-size:14px;font-weight:500}
-section{display:grid;gap:10px}
-h2{margin:0;font-size:14px;font-weight:700;letter-spacing:.04em;color:var(--fg);display:flex;align-items:center;gap:10px}
-h2::before{counter-increment:step;content:counter(step,decimal-leading-zero);font-family:var(--mono);font-size:12px;color:var(--blue);border:1px solid rgba(106,168,255,.35);border-radius:6px;padding:1px 6px}
-h2 .note{margin-left:auto}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:10px;box-shadow:0 1px 0 rgba(255,255,255,.03) inset,0 8px 24px rgba(0,0,0,.25)}
-input,select,button,textarea{font:inherit;color:var(--fg)}
-input[type=text],select{background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:9px 11px;min-width:0;width:100%;transition:border-color .15s}
-input[type=text]:hover,select:hover{border-color:#36405c}
-input::placeholder{color:#5d6780}
-input:focus-visible,select:focus-visible,button:focus-visible,textarea:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
-.mem{display:grid;grid-template-columns:1fr auto auto auto;gap:6px;align-items:center}
-.mem+.mem{padding-top:10px;border-top:1px solid var(--line)}
-.mem select{width:auto}
-.toggle{border:1px solid var(--line);border-radius:999px;padding:6px 11px;background:var(--surface-2);font-size:13px;cursor:pointer;white-space:nowrap;color:var(--muted);transition:all .15s}
-.toggle.on{background:var(--amber-soft);border-color:rgba(240,177,78,.55);color:var(--amber);font-weight:700}
-.x{border:none;background:none;color:var(--muted);font-size:20px;line-height:1;padding:4px 6px;cursor:pointer;border-radius:6px}
-.x:hover{color:var(--danger);background:rgba(255,138,122,.1)}
-.add{border:1px dashed #36405c;background:rgba(255,255,255,.02);border-radius:12px;padding:11px;color:var(--blue);font-weight:700;cursor:pointer;transition:all .15s}
-.add:hover{border-color:var(--blue);background:var(--blue-soft)}
-#rounds .panel{--accent:var(--blue);border-left:4px solid var(--accent)}
-#rounds .panel[data-cat=drink]{--accent:var(--amber)}
-#rounds .panel[data-cat=coffee]{--accent:var(--coffee)}
-#rounds .panel[data-cat=etc]{--accent:var(--etc)}
-.round-head{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center}
-.badge{font-family:var(--display);font-size:20px;color:var(--accent);min-width:2.4em}
-.money{display:grid;grid-template-columns:1fr 1.4fr;gap:8px}
-.money label{display:grid;gap:4px;font-size:12px;color:var(--muted)}
-.money input{font-family:var(--mono);text-align:right;font-size:16px}
-.chips{display:flex;flex-wrap:wrap;gap:6px}
-.chip{border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;background:var(--surface-2);color:var(--muted);cursor:pointer;transition:all .15s}
-.chip.on{background:var(--blue-soft);border-color:rgba(106,168,255,.5);color:var(--blue);font-weight:700}
-.chip-label{font-size:12px;color:var(--muted)}
-.set{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.set label{display:grid;gap:4px;font-size:12px;color:var(--muted)}
-.set label.full{grid-column:1/-1}
-/* 영수증: 안쪽 토큰을 종이색으로 바꿔서 같은 클래스들이 밝게 그려지도록 */
-.receipt{--surface:var(--paper);--fg:var(--ink);--muted:var(--ink-muted);--line:var(--ink-line);--blue:var(--ink-blue);--amber:var(--ink-amber);--amber-soft:rgba(162,101,16,.12);--danger:#b23a2e;
-  background:var(--paper);color:var(--ink);border-radius:6px 6px 0 0;padding:22px 18px 20px;font-family:var(--mono);font-size:14px;position:relative;margin-bottom:8px;box-shadow:0 18px 40px rgba(0,0,0,.45)}
-.receipt::after{content:"";position:absolute;left:0;right:0;bottom:-8px;height:8px;background:radial-gradient(circle at 6px 0,transparent 5.5px,var(--paper) 6px) 0 0/12px 8px repeat-x}
-.receipt h3{font-family:var(--display);font-weight:400;font-size:22px;margin:0 0 4px;text-align:center;color:var(--ink)}
-.sub{text-align:center;color:var(--muted);font-size:12px;margin-bottom:14px;font-family:var(--body)}
-.empty{text-align:center;color:var(--muted);font-family:var(--body);font-size:14px;padding:8px 0}
-.row{display:flex;justify-content:space-between;gap:12px;font-variant-numeric:tabular-nums}
-.row .k{font-family:var(--body);min-width:0}
-.dash{border-top:1px dashed var(--line);margin:12px 0}
-.person{padding:7px 0;display:grid;gap:2px}
-.person .row:first-child{font-weight:600}
-.person .amt{color:var(--blue);font-size:17px}
-.det{font-size:12px;color:var(--muted);font-family:var(--body)}
-.tag{font-size:11px;font-family:var(--body);background:var(--amber-soft);color:var(--amber);border-radius:4px;padding:1px 6px;margin-left:6px;font-weight:700}
-.total{font-weight:700}
-.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;font-family:var(--body)}
-.btn{flex:1 1 140px;border:none;border-radius:10px;padding:12px;font-weight:700;cursor:pointer;background:var(--blue);color:var(--surface);transition:filter .15s}
-.btn:hover{filter:brightness(1.08)}
-.btn.ghost{background:none;border:1px solid var(--line);color:var(--fg)}
-.btn.warn{border-color:var(--danger);color:var(--danger)}
-.toast{font-size:13px;color:var(--blue);text-align:center;min-height:1.2em;font-family:var(--body);margin-top:8px}
-textarea{width:100%;min-height:120px;font-family:var(--mono);font-size:12px;background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:8px;word-break:break-all}
-.note{font-size:12px;color:var(--muted)}
-.open-row{display:grid;grid-template-columns:1fr auto;gap:8px}
-.open-row .btn{flex:none;padding:8px 16px}
-@media (max-width:400px){header h1{font-size:34px}.money{grid-template-columns:1fr}}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
-</style>
-</head>
-<body>
-<div class="wrap">
-  <header>
-    <p class="kicker">N분의 1, 깔끔하게</p>
-    <h1>뒷풀이 <span>정산기</span></h1>
-    <p>차수마다 밥·술·커피 중 무엇이었는지와 누가 있었는지 체크하면 알아서 나눠 계산합니다.</p>
-    <div class="banner" id="banner" hidden>공유받은 정산을 불러왔습니다. 고쳐서 다시 공유할 수도 있어요.</div>
-  </header>
+      :root {
+        --bg: #0b1020;
+        --surface: #141a2b;
+        --surface-2: #1b2236;
+        --line: #283149;
+        --fg: #e8ecf6;
+        --muted: #8b95ad;
+        --blue: #6aa8ff;
+        --blue-soft: rgba(106, 168, 255, 0.14);
+        --amber: #f0b14e;
+        --amber-soft: rgba(240, 177, 78, 0.14);
+        --coffee: #d39a6a;
+        --etc: #f08bb5;
+        --danger: #ff8a7a;
+        --paper: #f4f6fb;
+        --ink: #161b2a;
+        --ink-muted: #646b7d;
+        --ink-line: #d5dbe8;
+        --ink-blue: #1f5fbf;
+        --ink-amber: #a26510;
+        --display: "Black Han Sans", "IBM Plex Sans KR", system-ui, sans-serif;
+        --body:
+          "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui,
+          sans-serif;
+        --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+        color-scheme: dark;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-padding-top: env(safe-area-inset-top, 0px);
+        background: var(--bg);
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--fg);
+        font-family: var(--body);
+        font-size: 15px;
+        line-height: 1.5;
+        background:
+          radial-gradient(
+            600px 380px at 0% -5%,
+            rgba(240, 177, 78, 0.13),
+            transparent 70%
+          ),
+          radial-gradient(
+            520px 360px at 100% 0%,
+            rgba(106, 168, 255, 0.11),
+            transparent 70%
+          ),
+          var(--bg);
+        background-attachment: fixed;
+      }
+      .wrap {
+        max-width: 640px;
+        margin: 0 auto;
+        padding-block: 32px 56px;
+        padding-left: max(16px, env(safe-area-inset-left, 0px));
+        padding-right: max(16px, env(safe-area-inset-right, 0px));
+        display: grid;
+        gap: 28px;
+        counter-reset: step;
+      }
+      header .kicker {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        color: var(--amber);
+        margin: 0 0 6px;
+      }
+      header h1 {
+        font-family: var(--display);
+        font-weight: 400;
+        font-size: 40px;
+        line-height: 1.1;
+        margin: 0;
+        letter-spacing: 0.01em;
+        color: var(--fg);
+      }
+      header h1 span {
+        color: var(--blue);
+      }
+      header p {
+        margin: 8px 0 0;
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .banner {
+        margin-top: 12px;
+        background: var(--blue-soft);
+        color: var(--blue);
+        border: 1px solid rgba(106, 168, 255, 0.3);
+        border-radius: 10px;
+        padding: 10px 12px;
+        font-size: 14px;
+        font-weight: 500;
+      }
+      section {
+        display: grid;
+        gap: 10px;
+      }
+      h2 {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        color: var(--fg);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      h2::before {
+        counter-increment: step;
+        content: counter(step, decimal-leading-zero);
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--blue);
+        border: 1px solid rgba(106, 168, 255, 0.35);
+        border-radius: 6px;
+        padding: 1px 6px;
+      }
+      h2 .note {
+        margin-left: auto;
+      }
+      .panel {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 14px;
+        display: grid;
+        gap: 10px;
+        box-shadow:
+          0 1px 0 rgba(255, 255, 255, 0.03) inset,
+          0 8px 24px rgba(0, 0, 0, 0.25);
+      }
+      input,
+      select,
+      button,
+      textarea {
+        font: inherit;
+        color: var(--fg);
+      }
+      input[type="text"],
+      select {
+        background: var(--surface-2);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 9px 11px;
+        min-width: 0;
+        width: 100%;
+        transition: border-color 0.15s;
+      }
+      input[type="text"]:hover,
+      select:hover {
+        border-color: #36405c;
+      }
+      input::placeholder {
+        color: #5d6780;
+      }
+      input:focus-visible,
+      select:focus-visible,
+      button:focus-visible,
+      textarea:focus-visible {
+        outline: 2px solid var(--blue);
+        outline-offset: 1px;
+      }
+      .mem {
+        display: grid;
+        grid-template-columns: 1fr auto auto auto;
+        gap: 6px;
+        align-items: center;
+      }
+      .mem + .mem {
+        padding-top: 10px;
+        border-top: 1px solid var(--line);
+      }
+      .mem select {
+        width: auto;
+      }
+      .toggle {
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 6px 11px;
+        background: var(--surface-2);
+        font-size: 13px;
+        cursor: pointer;
+        white-space: nowrap;
+        color: var(--muted);
+        transition: all 0.15s;
+      }
+      .toggle.on {
+        background: var(--amber-soft);
+        border-color: rgba(240, 177, 78, 0.55);
+        color: var(--amber);
+        font-weight: 700;
+      }
+      .x {
+        border: none;
+        background: none;
+        color: var(--muted);
+        font-size: 20px;
+        line-height: 1;
+        padding: 4px 6px;
+        cursor: pointer;
+        border-radius: 6px;
+      }
+      .x:hover {
+        color: var(--danger);
+        background: rgba(255, 138, 122, 0.1);
+      }
+      .add {
+        border: 1px dashed #36405c;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 12px;
+        padding: 11px;
+        color: var(--blue);
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .add:hover {
+        border-color: var(--blue);
+        background: var(--blue-soft);
+      }
+      #rounds .panel {
+        --accent: var(--blue);
+        border-left: 4px solid var(--accent);
+      }
+      #rounds .panel[data-cat="drink"] {
+        --accent: var(--amber);
+      }
+      #rounds .panel[data-cat="coffee"] {
+        --accent: var(--coffee);
+      }
+      #rounds .panel[data-cat="etc"] {
+        --accent: var(--etc);
+      }
+      .round-head {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 8px;
+        align-items: center;
+      }
+      .badge {
+        font-family: var(--display);
+        font-size: 20px;
+        color: var(--accent);
+        min-width: 2.4em;
+      }
+      .money {
+        display: grid;
+        grid-template-columns: 1fr 1.4fr;
+        gap: 8px;
+      }
+      .money label {
+        display: grid;
+        gap: 4px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .money input {
+        font-family: var(--mono);
+        text-align: right;
+        font-size: 16px;
+      }
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .chip {
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 6px 12px;
+        font-size: 13px;
+        background: var(--surface-2);
+        color: var(--muted);
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .chip.on {
+        background: var(--blue-soft);
+        border-color: rgba(106, 168, 255, 0.5);
+        color: var(--blue);
+        font-weight: 700;
+      }
+      .chip-label {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .set {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      .set label {
+        display: grid;
+        gap: 4px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .set label.full {
+        grid-column: 1/-1;
+      }
+      /* 영수증: 안쪽 토큰을 종이색으로 바꿔서 같은 클래스들이 밝게 그려지도록 */
+      .receipt {
+        --surface: var(--paper);
+        --fg: var(--ink);
+        --muted: var(--ink-muted);
+        --line: var(--ink-line);
+        --blue: var(--ink-blue);
+        --amber: var(--ink-amber);
+        --amber-soft: rgba(162, 101, 16, 0.12);
+        --danger: #b23a2e;
+        background: var(--paper);
+        color: var(--ink);
+        border-radius: 6px 6px 0 0;
+        padding: 22px 18px 20px;
+        font-family: var(--mono);
+        font-size: 14px;
+        position: relative;
+        margin-bottom: 8px;
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+      }
+      .receipt::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: -8px;
+        height: 8px;
+        background: radial-gradient(
+            circle at 6px 0,
+            transparent 5.5px,
+            var(--paper) 6px
+          )
+          0 0/12px 8px repeat-x;
+      }
+      .receipt h3 {
+        font-family: var(--display);
+        font-weight: 400;
+        font-size: 22px;
+        margin: 0 0 4px;
+        text-align: center;
+        color: var(--ink);
+      }
+      .sub {
+        text-align: center;
+        color: var(--muted);
+        font-size: 12px;
+        margin-bottom: 14px;
+        font-family: var(--body);
+      }
+      .empty {
+        text-align: center;
+        color: var(--muted);
+        font-family: var(--body);
+        font-size: 14px;
+        padding: 8px 0;
+      }
+      .row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        font-variant-numeric: tabular-nums;
+      }
+      .row .k {
+        font-family: var(--body);
+        min-width: 0;
+      }
+      .dash {
+        border-top: 1px dashed var(--line);
+        margin: 12px 0;
+      }
+      .person {
+        padding: 7px 0;
+        display: grid;
+        gap: 2px;
+      }
+      .person .row:first-child {
+        font-weight: 600;
+      }
+      .person .amt {
+        color: var(--blue);
+        font-size: 17px;
+      }
+      .det {
+        font-size: 12px;
+        color: var(--muted);
+        font-family: var(--body);
+      }
+      .tag {
+        font-size: 11px;
+        font-family: var(--body);
+        background: var(--amber-soft);
+        color: var(--amber);
+        border-radius: 4px;
+        padding: 1px 6px;
+        margin-left: 6px;
+        font-weight: 700;
+      }
+      .total {
+        font-weight: 700;
+      }
+      .actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 14px;
+        font-family: var(--body);
+      }
+      .btn {
+        flex: 1 1 140px;
+        border: none;
+        border-radius: 10px;
+        padding: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        background: var(--blue);
+        color: var(--surface);
+        transition: filter 0.15s;
+      }
+      .btn:hover {
+        filter: brightness(1.08);
+      }
+      .btn.ghost {
+        background: none;
+        border: 1px solid var(--line);
+        color: var(--fg);
+      }
+      .btn.warn {
+        border-color: var(--danger);
+        color: var(--danger);
+      }
+      .toast {
+        font-size: 13px;
+        color: var(--blue);
+        text-align: center;
+        min-height: 1.2em;
+        font-family: var(--body);
+        margin-top: 8px;
+      }
+      textarea {
+        width: 100%;
+        min-height: 120px;
+        font-family: var(--mono);
+        font-size: 12px;
+        background: var(--surface);
+        color: var(--fg);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 8px;
+        word-break: break-all;
+      }
+      .note {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .open-row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 8px;
+      }
+      .open-row .btn {
+        flex: none;
+        padding: 8px 16px;
+      }
+      .faq .panel {
+        gap: 0;
+        padding-block: 4px;
+      }
+      .faq details + details {
+        border-top: 1px solid var(--line);
+      }
+      .faq summary {
+        cursor: pointer;
+        padding: 12px 0;
+        font-weight: 500;
+      }
+      .faq summary::marker {
+        color: var(--blue);
+      }
+      .faq details p {
+        margin: 0 0 12px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+      @media (max-width: 400px) {
+        header h1 {
+          font-size: 34px;
+        }
+        .money {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          transition: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <p class="kicker">N분의 1, 깔끔하게</p>
+        <h1>뒷풀이 <span>정산기</span></h1>
+        <p>
+          회식·뒷풀이 술값 N빵, 이제 계산기 두드리지 마세요. 차수마다
+          밥·술·커피 중 무엇이었는지와 누가 있었는지 체크하면 알아서 나눠
+          계산합니다.
+        </p>
+        <div class="banner" id="banner" hidden>
+          공유받은 정산을 불러왔습니다. 고쳐서 다시 공유할 수도 있어요.
+        </div>
+      </header>
 
-  <section>
-    <h2>멤버 <span class="note" id="memCount"></span></h2>
-    <div class="panel" id="members"></div>
-    <button class="add" id="addMem">+ 멤버 추가</button>
-    <div class="note">🍺 술을 끄면 그 사람은 술 차수에 참석해도 술값을 내지 않습니다. 밥·커피·기타 차수는 참석자 모두가 나눕니다. 배율은 선배 1.5배, 막내 0.5배 같은 차등용.</div>
-  </section>
+      <section>
+        <h2>멤버 <span class="note" id="memCount"></span></h2>
+        <div class="panel" id="members"></div>
+        <button class="add" id="addMem">+ 멤버 추가</button>
+        <div class="note">
+          🍺 술을 끄면 그 사람은 술 차수에 참석해도 술값을 내지 않습니다.
+          밥·커피·기타 차수는 참석자 모두가 나눕니다. 배율은 선배 1.5배, 막내
+          0.5배 같은 차등용.
+        </div>
+      </section>
 
-  <section>
-    <h2>차수</h2>
-    <div id="rounds" style="display:grid;gap:10px"></div>
-    <button class="add" id="addRound">+ 차수 추가</button>
-  </section>
+      <section>
+        <h2>차수</h2>
+        <div id="rounds" style="display: grid; gap: 10px"></div>
+        <button class="add" id="addRound">+ 차수 추가</button>
+      </section>
 
-  <section>
-    <h2>설정</h2>
-    <div class="panel set">
-      <label class="full">모임 이름
-        <input id="title" type="text">
-      </label>
-      <label>올림 단위
-        <select id="unit"><option value="1">1원</option><option value="100">100원</option><option value="500">500원</option><option value="1000">1,000원</option><option value="5000">5,000원</option></select>
-      </label>
-      <label>회비 지원 (원)
-        <input id="fund" inputmode="numeric" type="text" placeholder="0">
-      </label>
-      <label class="full">결제한 사람(총무)
-        <select id="payer"></select>
-      </label>
+      <section>
+        <h2>설정</h2>
+        <div class="panel set">
+          <label class="full"
+            >모임 이름
+            <input id="title" type="text" />
+          </label>
+          <label
+            >올림 단위
+            <select id="unit">
+              <option value="1">1원</option>
+              <option value="100">100원</option>
+              <option value="500">500원</option>
+              <option value="1000">1,000원</option>
+              <option value="5000">5,000원</option>
+            </select>
+          </label>
+          <label
+            >회비 지원 (원)
+            <input id="fund" inputmode="numeric" type="text" placeholder="0" />
+          </label>
+          <label class="full"
+            >결제한 사람(총무)
+            <select id="payer"></select>
+          </label>
+        </div>
+      </section>
+
+      <section>
+        <h2>정산 결과</h2>
+        <div class="receipt" id="result"></div>
+      </section>
+
+      <section>
+        <h2>받은 정산 열기</h2>
+        <div class="panel">
+          <div class="open-row">
+            <input
+              type="text"
+              id="codeIn"
+              placeholder="받은 링크나 코드를 붙여넣기"
+              aria-label="정산 링크 또는 코드"
+            />
+            <button class="btn" id="openCode">열기</button>
+          </div>
+          <div class="note" id="openMsg">
+            링크가 바로 안 열리면 여기에 붙여넣으세요.
+          </div>
+        </div>
+      </section>
+
+      <section class="faq">
+        <h2>자주 묻는 질문</h2>
+        <div class="panel">
+          <details>
+            <summary>술 안 마신 사람은 술값을 어떻게 빼나요?</summary>
+            <p>
+              멤버 목록에서 🍺 술을 끄면 됩니다. 그 사람은 술 차수에 참석했어도
+              술값은 내지 않고, 밥·커피·기타 차수는 다른 사람과 똑같이 나눕니다.
+            </p>
+          </details>
+          <details>
+            <summary>1차만 있다 간 사람, 2차부터 온 사람은요?</summary>
+            <p>
+              차수마다 참석자를 체크하면 그 차수 금액은 체크된 사람끼리만
+              나눕니다. 1차 밥, 2차 호프, 3차 카페처럼 차수를 계속 추가할 수
+              있습니다.
+            </p>
+          </details>
+          <details>
+            <summary>선배는 더 내고 막내는 덜 내게 할 수 있나요?</summary>
+            <p>
+              멤버마다 배율(×0.5, ×1, ×1.5, ×2)을 정하면 그 비율대로 차등
+              정산합니다. 회비에서 일부를 지원했다면 설정의 회비 지원에 넣으세요.
+            </p>
+          </details>
+          <details>
+            <summary>정산 결과를 단톡방에 어떻게 보내나요?</summary>
+            <p>
+              결과 링크 복사를 누르면 정산 내용이 담긴 링크가 만들어집니다.
+              받은 사람은 링크만 열면 같은 영수증을 볼 수 있고, 회원가입이나
+              앱 설치는 필요 없습니다. 입력한 내용은 서버에 저장되지 않습니다.
+            </p>
+          </details>
+        </div>
+      </section>
     </div>
-  </section>
 
-  <section>
-    <h2>정산 결과</h2>
-    <div class="receipt" id="result"></div>
-  </section>
+    <script>
+      const won = (n) => Math.round(n).toLocaleString("ko-KR");
+      const num = (s) => Number(String(s).replace(/[^0-9]/g, "")) || 0;
+      const $ = (id) => document.getElementById(id);
+      const esc = (s) =>
+        String(s).replace(
+          /[&<>"]/g,
+          (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c],
+        );
 
-  <section>
-    <h2>받은 정산 열기</h2>
-    <div class="panel">
-      <div class="open-row">
-        <input type="text" id="codeIn" placeholder="받은 링크나 코드를 붙여넣기" aria-label="정산 링크 또는 코드">
-        <button class="btn" id="openCode">열기</button>
-      </div>
-      <div class="note" id="openMsg">링크가 바로 안 열리면 여기에 붙여넣으세요.</div>
-    </div>
-  </section>
-</div>
+      /* 차수 종류: 한 차수 = 한 종류. flag가 있으면 그 표시가 켜진 사람끼리만 나눔 */
+      const CATS = [
+        { k: "food", label: "🍚 밥", short: "밥" },
+        { k: "drink", label: "🍺 술", short: "술", flag: "drinks" },
+        { k: "coffee", label: "☕ 커피", short: "커피" },
+        { k: "etc", label: "🎤 기타", short: "기타" },
+      ];
+      const catOf = (r) => CATS.find((c) => c.k === r.cat) || CATS[0];
 
-<script>
-const won = n => Math.round(n).toLocaleString('ko-KR');
-const num = s => Number(String(s).replace(/[^0-9]/g,''))||0;
-const $ = id => document.getElementById(id);
-const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+      const SAMPLE = {
+        title: "트레킹 뒷풀이 (예시)",
+        members: [
+          { id: 1, name: "김대장", drinks: true, w: 1.5 },
+          { id: 2, name: "이총무", drinks: true, w: 1 },
+          { id: 3, name: "박산악", drinks: true, w: 1 },
+          { id: 4, name: "최운전", drinks: false, w: 1 },
+          { id: 5, name: "정막내", drinks: true, w: 0.5 },
+        ],
+        rounds: [
+          {
+            id: 11,
+            name: "삼겹살집",
+            cat: "food",
+            amt: 186000,
+            att: [1, 2, 3, 4, 5],
+          },
+          {
+            id: 12,
+            name: "호프",
+            cat: "drink",
+            amt: 110000,
+            att: [1, 2, 3, 4],
+          },
+          {
+            id: 13,
+            name: "카페",
+            cat: "coffee",
+            amt: 34500,
+            att: [1, 2, 4, 5],
+          },
+        ],
+        unit: 1000,
+        fund: 50000,
+        payer: 2,
+      };
+      const EMPTY = () => ({
+        title: "뒷풀이",
+        members: [],
+        rounds: [{ id: 11, name: "1차", cat: "food", amt: 0, att: [] }],
+        unit: 1000,
+        fund: 0,
+        payer: null,
+      });
 
-/* 차수 종류: 한 차수 = 한 종류. flag가 있으면 그 표시가 켜진 사람끼리만 나눔 */
-const CATS = [
-  {k:'food',   label:'🍚 밥',   short:'밥'},
-  {k:'drink',  label:'🍺 술',   short:'술', flag:'drinks'},
-  {k:'coffee', label:'☕ 커피', short:'커피'},
-  {k:'etc',    label:'🎤 기타', short:'기타'},
-];
-const catOf = r => CATS.find(c=>c.k===r.cat) || CATS[0];
+      /* 예전 저장본·링크(차수 하나에 밥·술·커피 칸이 따로 있던 버전): 금액 있는 칸마다 차수 하나로 펼침 */
+      function migrate(s) {
+        let id =
+          Math.max(
+            100,
+            ...s.members.map((m) => m.id),
+            ...s.rounds.map((r) => r.id),
+          ) + 1;
+        s.rounds = s.rounds.flatMap((r) => {
+          if (r.cat) return [r];
+          const used = CATS.filter((c) => r[c.k]);
+          if (!used.length)
+            return [
+              { id: r.id, name: r.name, cat: "food", amt: 0, att: r.att },
+            ];
+          return used.map((c, i) => ({
+            id: i ? id++ : r.id,
+            name: used.length > 1 ? `${r.name} (${c.short})` : r.name,
+            cat: c.k,
+            amt: r[c.k],
+            att: [...r.att],
+          }));
+        });
+        return s;
+      }
 
-const SAMPLE = {
-  title:'트레킹 뒷풀이 (예시)',
-  members:[
-    {id:1,name:'김대장',drinks:true,w:1.5},{id:2,name:'이총무',drinks:true,w:1},
-    {id:3,name:'박산악',drinks:true,w:1},{id:4,name:'최운전',drinks:false,w:1},
-    {id:5,name:'정막내',drinks:true,w:0.5}],
-  rounds:[
-    {id:11,name:'삼겹살집',cat:'food',amt:186000,att:[1,2,3,4,5]},
-    {id:12,name:'호프',cat:'drink',amt:110000,att:[1,2,3,4]},
-    {id:13,name:'카페',cat:'coffee',amt:34500,att:[1,2,4,5]}],
-  unit:1000, fund:50000, payer:2
-};
-const EMPTY = () => ({title:'뒷풀이',members:[],rounds:[{id:11,name:'1차',cat:'food',amt:0,att:[]}],unit:1000,fund:0,payer:null});
+      let S,
+        uid,
+        shareCode = "";
+      try {
+        S = JSON.parse(localStorage.getItem("dwitpuri-v2"));
+      } catch (e) {}
+      S = S && S.members ? migrate(S) : EMPTY();
+      const fixUid = () => {
+        uid =
+          Math.max(
+            100,
+            ...S.members.map((m) => m.id),
+            ...S.rounds.map((r) => r.id),
+          ) + 1;
+      };
+      fixUid();
+      const save = () => {
+        try {
+          localStorage.setItem("dwitpuri-v2", JSON.stringify(S));
+        } catch (e) {}
+      };
 
-/* 예전 저장본·링크(차수 하나에 밥·술·커피 칸이 따로 있던 버전): 금액 있는 칸마다 차수 하나로 펼침 */
-function migrate(s){
-  let id = Math.max(100, ...s.members.map(m=>m.id), ...s.rounds.map(r=>r.id)) + 1;
-  s.rounds = s.rounds.flatMap(r=>{
-    if(r.cat) return [r];
-    const used = CATS.filter(c=>r[c.k]);
-    if(!used.length) return [{id:r.id, name:r.name, cat:'food', amt:0, att:r.att}];
-    return used.map((c,i)=>({id:i?id++:r.id, name:used.length>1?`${r.name} (${c.short})`:r.name, cat:c.k, amt:r[c.k], att:[...r.att]}));
-  });
-  return s;
-}
+      /* ---------- 공유 코드: DB 없이 데이터를 링크에 담기 (v:3 = 차수당 한 종류, 없으면 예전 형식) ---------- */
+      const B32 = "abcdefghijklmnopqrstuvwxyz234567";
+      function toB32(bytes) {
+        let bits = 0,
+          val = 0,
+          out = "";
+        for (const b of bytes) {
+          val = (val << 8) | b;
+          bits += 8;
+          while (bits >= 5) {
+            out += B32[(val >>> (bits - 5)) & 31];
+            bits -= 5;
+          }
+          val &= (1 << bits) - 1;
+        }
+        if (bits > 0) out += B32[(val << (5 - bits)) & 31];
+        return out;
+      }
+      function fromB32(s) {
+        let bits = 0,
+          val = 0;
+        const out = [];
+        for (const ch of s) {
+          const i = B32.indexOf(ch);
+          if (i < 0) throw new Error("bad");
+          val = (val << 5) | i;
+          bits += 5;
+          if (bits >= 8) {
+            out.push((val >>> (bits - 8)) & 255);
+            bits -= 8;
+          }
+          val &= (1 << bits) - 1;
+        }
+        return new Uint8Array(out);
+      }
+      async function pipe(bytes, stream) {
+        const s = new Blob([bytes]).stream().pipeThrough(stream);
+        return new Uint8Array(await new Response(s).arrayBuffer());
+      }
+      async function encode() {
+        const m = S.members;
+        const p = {
+          v: 3,
+          t: S.title,
+          m: m.map((x) => [x.name, x.drinks ? 1 : 0, x.w]),
+          r: S.rounds.map((r) => [
+            r.name,
+            r.cat,
+            r.amt,
+            m
+              .map((x, i) => (r.att.includes(x.id) ? i : -1))
+              .filter((i) => i >= 0),
+          ]),
+          u: S.unit,
+          f: S.fund,
+          p: m.findIndex((x) => x.id == S.payer),
+        };
+        const raw = new TextEncoder().encode(JSON.stringify(p));
+        try {
+          return (
+            "z" + toB32(await pipe(raw, new CompressionStream("deflate-raw")))
+          );
+        } catch (e) {
+          return "n" + toB32(raw);
+        }
+      }
+      async function decode(input) {
+        let code = input
+          .trim()
+          .replace(/^.*#/, "")
+          .replace(/^p-/, "")
+          .toLowerCase()
+          .replace(/[^a-z2-7]/g, "");
+        let b = fromB32(code.slice(1));
+        if (code[0] === "z")
+          b = await pipe(b, new DecompressionStream("deflate-raw"));
+        const p = JSON.parse(new TextDecoder().decode(b));
+        return migrate({
+          title: p.t,
+          unit: p.u,
+          fund: p.f,
+          members: p.m.map((x, i) => ({
+            id: i + 1,
+            name: x[0],
+            drinks: !!x[1],
+            w: x[2],
+          })),
+          rounds: p.r.map((r, j) =>
+            p.v === 3
+              ? {
+                  id: 1000 + j,
+                  name: r[0],
+                  cat: r[1],
+                  amt: r[2],
+                  att: r[3].map((i) => i + 1),
+                }
+              : {
+                  id: 1000 + j,
+                  name: r[0],
+                  food: r[1],
+                  drink: r[2],
+                  att: r[3].map((i) => i + 1),
+                  coffee: r[4] || 0,
+                  etc: r[5] || 0,
+                },
+          ),
+          payer: p.p >= 0 ? p.p + 1 : null,
+        });
+      }
+      const shareLink = () => location.href.split("#")[0] + "#p-" + shareCode;
 
-let S, uid, shareCode = '';
-try{ S = JSON.parse(localStorage.getItem('dwitpuri-v2')) }catch(e){}
-S = (S && S.members) ? migrate(S) : EMPTY();
-const fixUid = () => { uid = Math.max(100, ...S.members.map(m=>m.id), ...S.rounds.map(r=>r.id)) + 1; };
-fixUid();
-const save = () => { try{ localStorage.setItem('dwitpuri-v2', JSON.stringify(S)) }catch(e){} };
-
-/* ---------- 공유 코드: DB 없이 데이터를 링크에 담기 (v:3 = 차수당 한 종류, 없으면 예전 형식) ---------- */
-const B32 = 'abcdefghijklmnopqrstuvwxyz234567';
-function toB32(bytes){ let bits=0,val=0,out=''; for(const b of bytes){ val=(val<<8)|b; bits+=8; while(bits>=5){ out+=B32[(val>>>(bits-5))&31]; bits-=5; } val&=(1<<bits)-1; } if(bits>0) out+=B32[(val<<(5-bits))&31]; return out; }
-function fromB32(s){ let bits=0,val=0; const out=[]; for(const ch of s){ const i=B32.indexOf(ch); if(i<0) throw new Error('bad'); val=(val<<5)|i; bits+=5; if(bits>=8){ out.push((val>>>(bits-8))&255); bits-=8; } val&=(1<<bits)-1; } return new Uint8Array(out); }
-async function pipe(bytes, stream){ const s = new Blob([bytes]).stream().pipeThrough(stream); return new Uint8Array(await new Response(s).arrayBuffer()); }
-async function encode(){
-  const m = S.members;
-  const p = {v:3, t:S.title, m:m.map(x=>[x.name,x.drinks?1:0,x.w]),
-    r:S.rounds.map(r=>[r.name,r.cat,r.amt,m.map((x,i)=>r.att.includes(x.id)?i:-1).filter(i=>i>=0)]),
-    u:S.unit, f:S.fund, p:m.findIndex(x=>x.id==S.payer)};
-  const raw = new TextEncoder().encode(JSON.stringify(p));
-  try{ return 'z' + toB32(await pipe(raw, new CompressionStream('deflate-raw'))); }
-  catch(e){ return 'n' + toB32(raw); }
-}
-async function decode(input){
-  let code = input.trim().replace(/^.*#/,'').replace(/^p-/,'').toLowerCase().replace(/[^a-z2-7]/g,'');
-  let b = fromB32(code.slice(1));
-  if(code[0]==='z') b = await pipe(b, new DecompressionStream('deflate-raw'));
-  const p = JSON.parse(new TextDecoder().decode(b));
-  return migrate({ title:p.t, unit:p.u, fund:p.f,
-    members:p.m.map((x,i)=>({id:i+1,name:x[0],drinks:!!x[1],w:x[2]})),
-    rounds:p.r.map((r,j)=>p.v===3
-      ? {id:1000+j,name:r[0],cat:r[1],amt:r[2],att:r[3].map(i=>i+1)}
-      : {id:1000+j,name:r[0],food:r[1],drink:r[2],att:r[3].map(i=>i+1),coffee:r[4]||0,etc:r[5]||0}),
-    payer:p.p>=0 ? p.p+1 : null });
-}
-const shareLink = () => location.href.split('#')[0] + '#p-' + shareCode;
-
-/* ---------- 화면 ---------- */
-function renderPayer(){ $('payer').innerHTML = S.members.map(m=>`<option value="${m.id}" ${S.payer==m.id?'selected':''}>${esc(m.name)}</option>`).join('') || '<option>멤버를 먼저 추가하세요</option>'; }
-function renderMembers(){
-  $('members').innerHTML = S.members.map(m=>`
+      /* ---------- 화면 ---------- */
+      function renderPayer() {
+        $("payer").innerHTML =
+          S.members
+            .map(
+              (m) =>
+                `<option value="${m.id}" ${S.payer == m.id ? "selected" : ""}>${esc(m.name)}</option>`,
+            )
+            .join("") || "<option>멤버를 먼저 추가하세요</option>";
+      }
+      function renderMembers() {
+        $("members").innerHTML =
+          S.members
+            .map(
+              (m) => `
     <div class="mem" data-id="${m.id}">
       <input type="text" id="mn${m.id}" value="${esc(m.name)}" data-f="name" aria-label="이름">
-      <button class="toggle ${m.drinks?'on':''}" data-f="drinks" aria-pressed="${m.drinks}">${m.drinks?'🍺 술':'술 X'}</button>
+      <button class="toggle ${m.drinks ? "on" : ""}" data-f="drinks" aria-pressed="${m.drinks}">${m.drinks ? "🍺 술" : "술 X"}</button>
       <select class="wsel" id="mw${m.id}" data-f="w" aria-label="배율">
-        ${[0.5,1,1.5,2].map(w=>`<option value="${w}" ${m.w==w?'selected':''}>×${w}</option>`).join('')}
+        ${[0.5, 1, 1.5, 2].map((w) => `<option value="${w}" ${m.w == w ? "selected" : ""}>×${w}</option>`).join("")}
       </select>
       <button class="x" data-f="del" aria-label="${esc(m.name)} 삭제">×</button>
-    </div>`).join('') || '<div class="note">아직 멤버가 없습니다. 아래 버튼으로 추가하세요.</div>';
-  $('memCount').textContent = S.members.length ? S.members.length+'명' : '';
-  renderPayer();
-}
-function renderRounds(){
-  $('rounds').innerHTML = S.rounds.map((r,i)=>`
+    </div>`,
+            )
+            .join("") ||
+          '<div class="note">아직 멤버가 없습니다. 아래 버튼으로 추가하세요.</div>';
+        $("memCount").textContent = S.members.length
+          ? S.members.length + "명"
+          : "";
+        renderPayer();
+      }
+      function renderRounds() {
+        $("rounds").innerHTML = S.rounds
+          .map(
+            (r, i) => `
     <div class="panel" data-rid="${r.id}" data-cat="${r.cat}">
       <div class="round-head">
-        <span class="badge">${i+1}차</span>
+        <span class="badge">${i + 1}차</span>
         <input type="text" id="rn${r.id}" value="${esc(r.name)}" data-f="name" aria-label="장소">
-        <button class="x" data-f="del" aria-label="${i+1}차 삭제">×</button>
+        <button class="x" data-f="del" aria-label="${i + 1}차 삭제">×</button>
       </div>
       <div class="money">
-        <label>종류<select id="rc${r.id}" data-f="cat">${CATS.map(c=>`<option value="${c.k}" ${r.cat===c.k?'selected':''}>${c.label}</option>`).join('')}</select></label>
-        <label>금액 (원)<input id="ra${r.id}" type="text" inputmode="numeric" data-f="amt" placeholder="0" value="${r.amt?won(r.amt):''}"></label>
+        <label>종류<select id="rc${r.id}" data-f="cat">${CATS.map((c) => `<option value="${c.k}" ${r.cat === c.k ? "selected" : ""}>${c.label}</option>`).join("")}</select></label>
+        <label>금액 (원)<input id="ra${r.id}" type="text" inputmode="numeric" data-f="amt" placeholder="0" value="${r.amt ? won(r.amt) : ""}"></label>
       </div>
-      ${catOf(r).flag?`<div class="note">${catOf(r).short} 안 하는 사람(멤버에서 ${catOf(r).short} X)은 참석해도 이 금액에서 빠집니다.</div>`:''}
+      ${catOf(r).flag ? `<div class="note">${catOf(r).short} 안 하는 사람(멤버에서 ${catOf(r).short} X)은 참석해도 이 금액에서 빠집니다.</div>` : ""}
       <div class="chip-label">참석자</div>
-      <div class="chips">${S.members.map(m=>`<button class="chip ${r.att.includes(m.id)?'on':''}" data-mid="${m.id}" aria-pressed="${r.att.includes(m.id)}">${esc(m.name)}</button>`).join('') || '<span class="note">멤버를 추가하면 여기서 체크할 수 있어요.</span>'}</div>
-    </div>`).join('');
-}
+      <div class="chips">${S.members.map((m) => `<button class="chip ${r.att.includes(m.id) ? "on" : ""}" data-mid="${m.id}" aria-pressed="${r.att.includes(m.id)}">${esc(m.name)}</button>`).join("") || '<span class="note">멤버를 추가하면 여기서 체크할 수 있어요.</span>'}</div>
+    </div>`,
+          )
+          .join("");
+      }
 
-function compute(){
-  const per = {}; S.members.forEach(m=>per[m.id]={amt:0,lines:[]});
-  let grand = 0;
-  S.rounds.forEach((r,i)=>{
-    const att = S.members.filter(m=>r.att.includes(m.id));
-    if(!att.length) return;
-    grand += r.amt;
-    // 술 차수인데 해당하는 사람이 아무도 없으면 참석자 전체가 나눔
-    const c = catOf(r);
-    let who = c.flag ? att.filter(m=>m[c.flag]) : att; if(!who.length) who = att;
-    const wSum = who.reduce((a,m)=>a+m.w,0);
-    att.forEach(m=>{
-      const v = who.includes(m) ? r.amt*m.w/wSum : 0;
-      per[m.id].amt += v; per[m.id].lines.push(`${i+1}차 ${won(v)}`);
-    });
-  });
-  const fund = Math.min(S.fund, grand);
-  const ratio = grand ? (grand-fund)/grand : 0;
-  const rows = S.members.map(m=>({m, pay:Math.ceil(per[m.id].amt*ratio/S.unit - 1e-9)*S.unit, lines:per[m.id].lines}));
-  const collected = rows.reduce((a,r)=>a+r.pay,0);
-  return {rows, grand, fund, collected, surplus:collected-(grand-fund)};
-}
+      function compute() {
+        const per = {};
+        S.members.forEach((m) => (per[m.id] = { amt: 0, lines: [] }));
+        let grand = 0;
+        S.rounds.forEach((r, i) => {
+          const att = S.members.filter((m) => r.att.includes(m.id));
+          if (!att.length) return;
+          grand += r.amt;
+          // 술 차수인데 해당하는 사람이 아무도 없으면 참석자 전체가 나눔
+          const c = catOf(r);
+          let who = c.flag ? att.filter((m) => m[c.flag]) : att;
+          if (!who.length) who = att;
+          const wSum = who.reduce((a, m) => a + m.w, 0);
+          att.forEach((m) => {
+            const v = who.includes(m) ? (r.amt * m.w) / wSum : 0;
+            per[m.id].amt += v;
+            per[m.id].lines.push(`${i + 1}차 ${won(v)}`);
+          });
+        });
+        const fund = Math.min(S.fund, grand);
+        const ratio = grand ? (grand - fund) / grand : 0;
+        const rows = S.members.map((m) => ({
+          m,
+          pay: Math.ceil((per[m.id].amt * ratio) / S.unit - 1e-9) * S.unit,
+          lines: per[m.id].lines,
+        }));
+        const collected = rows.reduce((a, r) => a + r.pay, 0);
+        return {
+          rows,
+          grand,
+          fund,
+          collected,
+          surplus: collected - (grand - fund),
+        };
+      }
 
-function renderResult(){
-  save();
-  const c = compute(), payer = S.members.find(m=>m.id==S.payer);
-  if(!S.members.length || !c.grand){
-    $('result').innerHTML = `<h3>${esc(S.title)}</h3>
+      function renderResult() {
+        save();
+        const c = compute(),
+          payer = S.members.find((m) => m.id == S.payer);
+        if (!S.members.length || !c.grand) {
+          $("result").innerHTML = `<h3>${esc(S.title)}</h3>
       <div class="empty">멤버를 추가하고 차수별 금액을 넣으면<br>여기에 한 사람당 낼 돈이 나옵니다.</div>
       <div class="actions"><button class="btn ghost" id="sampleBtn">예시로 채워보기</button></div>
       <div class="toast" id="toast"></div>`;
-    $('sampleBtn').onclick = ()=>{ S = structuredClone(SAMPLE); fixUid(); renderAll(); };
-    return;
-  }
-  const catTotals = CATS.map(cat=>({cat, v:S.rounds.reduce((a,r)=>a+(r.att.length&&r.cat===cat.k?r.amt:0),0)})).filter(x=>x.v);
-  const people = c.rows.map(r=>`
+          $("sampleBtn").onclick = () => {
+            S = structuredClone(SAMPLE);
+            fixUid();
+            renderAll();
+          };
+          return;
+        }
+        const catTotals = CATS.map((cat) => ({
+          cat,
+          v: S.rounds.reduce(
+            (a, r) => a + (r.att.length && r.cat === cat.k ? r.amt : 0),
+            0,
+          ),
+        })).filter((x) => x.v);
+        const people = c.rows
+          .map(
+            (r) => `
     <div class="person">
-      <div class="row"><span class="k">${esc(r.m.name)}${r.m.id==S.payer?'<span class="tag">결제</span>':''}${!r.m.drinks?'<span class="tag">술X</span>':''}${r.m.w!=1?`<span class="tag">×${r.m.w}</span>`:''}</span><span class="amt">${won(r.pay)}</span></div>
-      <div class="det">${r.lines.join(' · ')||'참석 없음'}</div>
-    </div>`).join('');
-  const senders = c.rows.filter(r=>r.m.id!=S.payer && r.pay>0).length;
-  $('result').innerHTML = `
+      <div class="row"><span class="k">${esc(r.m.name)}${r.m.id == S.payer ? '<span class="tag">결제</span>' : ""}${!r.m.drinks ? '<span class="tag">술X</span>' : ""}${r.m.w != 1 ? `<span class="tag">×${r.m.w}</span>` : ""}</span><span class="amt">${won(r.pay)}</span></div>
+      <div class="det">${r.lines.join(" · ") || "참석 없음"}</div>
+    </div>`,
+          )
+          .join("");
+        const senders = c.rows.filter(
+          (r) => r.m.id != S.payer && r.pay > 0,
+        ).length;
+        $("result").innerHTML = `
     <h3>${esc(S.title)}</h3>
-    <div class="sub">${new Date().toLocaleDateString('ko-KR')} · ${S.members.length}명 · ${S.rounds.length}차까지</div>
-    ${S.rounds.map((r,i)=>`<div class="row"><span class="k">${i+1}차 ${esc(r.name)} · ${catOf(r).short} · ${r.att.length}명</span><span>${won(r.amt)}</span></div>`).join('')}
+    <div class="sub">${new Date().toLocaleDateString("ko-KR")} · ${S.members.length}명 · ${S.rounds.length}차까지</div>
+    ${S.rounds.map((r, i) => `<div class="row"><span class="k">${i + 1}차 ${esc(r.name)} · ${catOf(r).short} · ${r.att.length}명</span><span>${won(r.amt)}</span></div>`).join("")}
     <div class="dash"></div>
-    ${catTotals.map(x=>`<div class="row"><span class="k">${x.cat.label}</span><span>${won(x.v)}</span></div>`).join('')}
+    ${catTotals.map((x) => `<div class="row"><span class="k">${x.cat.label}</span><span>${won(x.v)}</span></div>`).join("")}
     <div class="row total"><span class="k">총 결제</span><span>${won(c.grand)}</span></div>
-    ${c.fund?`<div class="row"><span class="k">회비 지원</span><span>−${won(c.fund)}</span></div>`:''}
-    <div class="row"><span class="k">나눌 금액</span><span>${won(c.grand-c.fund)}</span></div>
+    ${c.fund ? `<div class="row"><span class="k">회비 지원</span><span>−${won(c.fund)}</span></div>` : ""}
+    <div class="row"><span class="k">나눌 금액</span><span>${won(c.grand - c.fund)}</span></div>
     <div class="dash"></div>
     ${people}
     <div class="dash"></div>
     <div class="row"><span class="k">걷히는 돈 합계</span><span>${won(c.collected)}</span></div>
     <div class="row"><span class="k">올림으로 남는 돈</span><span>${won(c.surplus)}</span></div>
-    <div class="det" style="margin-top:4px">${payer?`${esc(payer.name)}님에게 ${senders}명이 보내면 됩니다. 남는 돈은 회비로 넣으세요.`:'결제한 사람을 설정에서 골라주세요.'}</div>
+    <div class="det" style="margin-top:4px">${payer ? `${esc(payer.name)}님에게 ${senders}명이 보내면 됩니다. 남는 돈은 회비로 넣으세요.` : "결제한 사람을 설정에서 골라주세요."}</div>
     <div class="actions">
       <button class="btn" id="linkBtn">결과 링크 복사</button>
       <button class="btn ghost" id="textBtn">단톡방용 텍스트 복사</button>
@@ -329,104 +1045,220 @@ function renderResult(){
     <div class="toast" id="toast"></div>
     <textarea id="copybox" hidden readonly aria-label="복사할 내용"></textarea>`;
 
-  shareCode = '';
-  encode().then(code=>{ shareCode = code; });
+        shareCode = "";
+        encode().then((code) => {
+          shareCode = code;
+        });
 
-  $('linkBtn').onclick = ()=>{
-    if(!shareCode){ $('toast').textContent='링크를 만드는 중입니다. 잠시 후 다시 눌러주세요.'; return; }
-    copy(shareLink(), '링크를 복사했습니다. 단톡방에 붙여넣으세요.');
-  };
-  $('textBtn').onclick = ()=>{
-    const t = [`[${S.title} 정산]`,
-      ...S.rounds.map((r,i)=>`${i+1}차 ${r.name}(${catOf(r).short}) ${won(r.amt)}원 (${r.att.length}명)`),
-      `총 ${won(c.grand)}원${c.fund?` / 회비 지원 ${won(c.fund)}원`:''}`, '',
-      ...c.rows.map(r=>`${r.m.name} ${won(r.pay)}원${r.m.id==S.payer?' (결제)':''}`), '',
-      payer?`👉 ${payer.name}님께 보내주세요`:'',
-      shareCode?`자세히 보기: ${shareLink()}`:''].filter((l,i,a)=>l!==''||a[i-1]!=='').join('\n').trim();
-    copy(t, '복사했습니다. 단톡방에 붙여넣으세요.');
-  };
-  $('resetBtn').onclick = e=>{
-    const b = e.currentTarget;
-    if(b.dataset.armed){ S = EMPTY(); fixUid(); $('banner').hidden = true; renderAll(); }
-    else { b.dataset.armed = '1'; b.textContent = '한 번 더 누르면 지워집니다'; }
-  };
-}
+        $("linkBtn").onclick = () => {
+          if (!shareCode) {
+            $("toast").textContent =
+              "링크를 만드는 중입니다. 잠시 후 다시 눌러주세요.";
+            return;
+          }
+          copy(shareLink(), "링크를 복사했습니다. 단톡방에 붙여넣으세요.");
+        };
+        $("textBtn").onclick = () => {
+          const t = [
+            `[${S.title} 정산]`,
+            ...S.rounds.map(
+              (r, i) =>
+                `${i + 1}차 ${r.name}(${catOf(r).short}) ${won(r.amt)}원 (${r.att.length}명)`,
+            ),
+            `총 ${won(c.grand)}원${c.fund ? ` / 회비 지원 ${won(c.fund)}원` : ""}`,
+            "",
+            ...c.rows.map(
+              (r) =>
+                `${r.m.name} ${won(r.pay)}원${r.m.id == S.payer ? " (결제)" : ""}`,
+            ),
+            "",
+            payer ? `👉 ${payer.name}님께 보내주세요` : "",
+            shareCode ? `자세히 보기: ${shareLink()}` : "",
+          ]
+            .filter((l, i, a) => l !== "" || a[i - 1] !== "")
+            .join("\n")
+            .trim();
+          copy(t, "복사했습니다. 단톡방에 붙여넣으세요.");
+        };
+        $("resetBtn").onclick = (e) => {
+          const b = e.currentTarget;
+          if (b.dataset.armed) {
+            S = EMPTY();
+            fixUid();
+            $("banner").hidden = true;
+            renderAll();
+          } else {
+            b.dataset.armed = "1";
+            b.textContent = "한 번 더 누르면 지워집니다";
+          }
+        };
+      }
 
-function copy(text, okMsg){
-  const box = $('copybox');
-  const fallback = ()=>{ box.hidden=false; box.value=text; box.focus(); box.select(); $('toast').textContent='아래 내용을 길게 눌러 복사하세요.'; };
-  try{ navigator.clipboard.writeText(text).then(()=>{ box.hidden=true; $('toast').textContent=okMsg; }, fallback); }
-  catch(e){ fallback(); }
-}
+      function copy(text, okMsg) {
+        const box = $("copybox");
+        const fallback = () => {
+          box.hidden = false;
+          box.value = text;
+          box.focus();
+          box.select();
+          $("toast").textContent = "아래 내용을 길게 눌러 복사하세요.";
+        };
+        try {
+          navigator.clipboard.writeText(text).then(() => {
+            box.hidden = true;
+            $("toast").textContent = okMsg;
+          }, fallback);
+        } catch (e) {
+          fallback();
+        }
+      }
 
-function renderAll(){
-  renderMembers(); renderRounds();
-  $('title').value = S.title; $('unit').value = S.unit; $('fund').value = S.fund?won(S.fund):'';
-  renderResult();
-}
+      function renderAll() {
+        renderMembers();
+        renderRounds();
+        $("title").value = S.title;
+        $("unit").value = S.unit;
+        $("fund").value = S.fund ? won(S.fund) : "";
+        renderResult();
+      }
 
-/* ---------- 입력 이벤트 ---------- */
-$('members').addEventListener('input', e=>{
-  const id = +e.target.closest('.mem').dataset.id, m = S.members.find(x=>x.id==id), f = e.target.dataset.f;
-  if(f==='name'){ m.name = e.target.value; renderRounds(); renderPayer(); }
-  if(f==='w') m.w = Number(e.target.value);
-  renderResult();
-});
-$('members').addEventListener('click', e=>{
-  const b = e.target.closest('button'); if(!b) return;
-  const id = +b.closest('.mem').dataset.id, m = S.members.find(x=>x.id==id);
-  if(b.dataset.f==='drinks') m.drinks = !m.drinks;
-  if(b.dataset.f==='del'){ S.members = S.members.filter(x=>x.id!=id); S.rounds.forEach(r=>r.att=r.att.filter(a=>a!=id)); if(S.payer==id) S.payer = S.members[0]?.id ?? null; }
-  renderAll();
-});
-$('addMem').onclick = ()=>{
-  const id = uid++;
-  S.members.push({id, name:'멤버'+(S.members.length+1), drinks:true, w:1});
-  S.rounds.forEach(r=>r.att.push(id));
-  if(!S.payer) S.payer = id;
-  renderAll(); const el = $('mn'+id); if(el){ el.focus(); el.select(); }
-};
-$('rounds').addEventListener('input', e=>{
-  const r = S.rounds.find(x=>x.id==e.target.closest('[data-rid]').dataset.rid), f = e.target.dataset.f;
-  if(f==='name') r.name = e.target.value;
-  if(f==='cat'){ r.cat = e.target.value; renderRounds(); }
-  if(f==='amt'){
-    r.amt = num(e.target.value);
-    const fromEnd = e.target.value.length - e.target.selectionStart;
-    e.target.value = r.amt ? won(r.amt) : '';
-    const pos = Math.max(0, e.target.value.length - fromEnd); e.target.setSelectionRange(pos,pos);
-  }
-  renderResult();
-});
-$('rounds').addEventListener('click', e=>{
-  const b = e.target.closest('button'); if(!b) return;
-  const r = S.rounds.find(x=>x.id==b.closest('[data-rid]').dataset.rid);
-  if(b.dataset.f==='del') S.rounds = S.rounds.filter(x=>x!==r);
-  else if(b.dataset.mid){ const mid = +b.dataset.mid; r.att = r.att.includes(mid) ? r.att.filter(a=>a!=mid) : [...r.att, mid]; }
-  renderRounds(); renderResult();
-});
-$('addRound').onclick = ()=>{
-  const prev = S.rounds[S.rounds.length-1];
-  S.rounds.push({id:uid++, name:(S.rounds.length+1)+'차', cat:'drink', amt:0, att:prev?[...prev.att]:S.members.map(m=>m.id)});
-  renderRounds(); renderResult();
-};
-$('title').oninput = e=>{ S.title = e.target.value || '뒷풀이'; renderResult(); };
-$('unit').onchange = e=>{ S.unit = +e.target.value; renderResult(); };
-$('fund').oninput = e=>{ S.fund = num(e.target.value); e.target.value = S.fund ? won(S.fund) : ''; renderResult(); };
-$('payer').onchange = e=>{ S.payer = +e.target.value || null; renderResult(); };
+      /* ---------- 입력 이벤트 ---------- */
+      $("members").addEventListener("input", (e) => {
+        const id = +e.target.closest(".mem").dataset.id,
+          m = S.members.find((x) => x.id == id),
+          f = e.target.dataset.f;
+        if (f === "name") {
+          m.name = e.target.value;
+          renderRounds();
+          renderPayer();
+        }
+        if (f === "w") m.w = Number(e.target.value);
+        renderResult();
+      });
+      $("members").addEventListener("click", (e) => {
+        const b = e.target.closest("button");
+        if (!b) return;
+        const id = +b.closest(".mem").dataset.id,
+          m = S.members.find((x) => x.id == id);
+        if (b.dataset.f === "drinks") m.drinks = !m.drinks;
+        if (b.dataset.f === "del") {
+          S.members = S.members.filter((x) => x.id != id);
+          S.rounds.forEach((r) => (r.att = r.att.filter((a) => a != id)));
+          if (S.payer == id) S.payer = S.members[0]?.id ?? null;
+        }
+        renderAll();
+      });
+      $("addMem").onclick = () => {
+        const id = uid++;
+        S.members.push({
+          id,
+          name: "멤버" + (S.members.length + 1),
+          drinks: true,
+          w: 1,
+        });
+        S.rounds.forEach((r) => r.att.push(id));
+        if (!S.payer) S.payer = id;
+        renderAll();
+        const el = $("mn" + id);
+        if (el) {
+          el.focus();
+          el.select();
+        }
+      };
+      $("rounds").addEventListener("input", (e) => {
+        const r = S.rounds.find(
+            (x) => x.id == e.target.closest("[data-rid]").dataset.rid,
+          ),
+          f = e.target.dataset.f;
+        if (f === "name") r.name = e.target.value;
+        if (f === "cat") {
+          r.cat = e.target.value;
+          renderRounds();
+        }
+        if (f === "amt") {
+          r.amt = num(e.target.value);
+          const fromEnd = e.target.value.length - e.target.selectionStart;
+          e.target.value = r.amt ? won(r.amt) : "";
+          const pos = Math.max(0, e.target.value.length - fromEnd);
+          e.target.setSelectionRange(pos, pos);
+        }
+        renderResult();
+      });
+      $("rounds").addEventListener("click", (e) => {
+        const b = e.target.closest("button");
+        if (!b) return;
+        const r = S.rounds.find(
+          (x) => x.id == b.closest("[data-rid]").dataset.rid,
+        );
+        if (b.dataset.f === "del") S.rounds = S.rounds.filter((x) => x !== r);
+        else if (b.dataset.mid) {
+          const mid = +b.dataset.mid;
+          r.att = r.att.includes(mid)
+            ? r.att.filter((a) => a != mid)
+            : [...r.att, mid];
+        }
+        renderRounds();
+        renderResult();
+      });
+      $("addRound").onclick = () => {
+        const prev = S.rounds[S.rounds.length - 1];
+        S.rounds.push({
+          id: uid++,
+          name: S.rounds.length + 1 + "차",
+          cat: "drink",
+          amt: 0,
+          att: prev ? [...prev.att] : S.members.map((m) => m.id),
+        });
+        renderRounds();
+        renderResult();
+      };
+      $("title").oninput = (e) => {
+        S.title = e.target.value || "뒷풀이";
+        renderResult();
+      };
+      $("unit").onchange = (e) => {
+        S.unit = +e.target.value;
+        renderResult();
+      };
+      $("fund").oninput = (e) => {
+        S.fund = num(e.target.value);
+        e.target.value = S.fund ? won(S.fund) : "";
+        renderResult();
+      };
+      $("payer").onchange = (e) => {
+        S.payer = +e.target.value || null;
+        renderResult();
+      };
 
-async function loadCode(code){
-  S = await decode(code); fixUid(); $('banner').hidden = false; renderAll();
-  window.scrollTo({top:0, behavior:'smooth'});
-}
-$('openCode').onclick = async ()=>{
-  const v = $('codeIn').value; if(!v.trim()) return;
-  try{ await loadCode(v); $('codeIn').value=''; $('openMsg').textContent='불러왔습니다.'; }
-  catch(e){ $('openMsg').textContent='코드를 읽지 못했습니다. 링크를 끝까지 복사했는지 확인하세요.'; }
-};
+      async function loadCode(code) {
+        S = await decode(code);
+        fixUid();
+        $("banner").hidden = false;
+        renderAll();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+      $("openCode").onclick = async () => {
+        const v = $("codeIn").value;
+        if (!v.trim()) return;
+        try {
+          await loadCode(v);
+          $("codeIn").value = "";
+          $("openMsg").textContent = "불러왔습니다.";
+        } catch (e) {
+          $("openMsg").textContent =
+            "코드를 읽지 못했습니다. 링크를 끝까지 복사했는지 확인하세요.";
+        }
+      };
 
-renderAll();
-(async ()=>{ const h = location.hash.slice(1); if(h.startsWith('p-')){ try{ await loadCode(h); }catch(e){} } })();
-</script>
-</body>
+      renderAll();
+      (async () => {
+        const h = location.hash.slice(1);
+        if (h.startsWith("p-")) {
+          try {
+            await loadCode(h);
+          } catch (e) {}
+        }
+      })();
+    </script>
+  </body>
 </html>
