@@ -4,7 +4,9 @@
     "target": {
       "namespace": "android_app",
       "package_name": "kr.ai.wonseok.nbbang",
-      "sha256_cert_fingerprints": ["PLAY_APP_SIGNING_SHA256_FINGERPRINT"]
+      "sha256_cert_fingerprints": [
+        "75:A4:CD:AC:FB:20:AA:4D:AB:2A:17:DC:96:E8:DA:43:DF:BE:B0:22:69:FC:49:C2:C1:E0:1A:80:BE:F4:2B:4E"
+      ]
     }
   }
 ]
