@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://split.wonseok.ai.kr/sitemap.xml
+Sitemap: https://nbbang.wonseok.ai.kr/sitemap.xml

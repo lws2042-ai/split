@@ -1,0 +1,19 @@
+{
+  "id": "/",
+  "name": "엔빵요정 - 술값·회식비 N빵 정산",
+  "short_name": "엔빵요정",
+  "description": "차수별 참석자와 술 안 마신 사람까지 반영해 한 사람당 낼 돈을 자동으로 계산하는 정산기",
+  "lang": "ko",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b1020",
+  "theme_color": "#0b1020",
+  "categories": ["finance", "utilities"],
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

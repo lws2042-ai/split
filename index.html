@@ -7,25 +7,28 @@
       name="viewport"
       content="width=device-width,initial-scale=1,viewport-fit=cover"
     />
-    <title>뒷풀이 정산기 - 술값·회식비 N빵 계산기</title>
+    <title>엔빵요정 - 술값·회식비 N빵 정산 계산기</title>
     <meta
       name="description"
-      content="1차 밥, 2차 술, 3차 카페까지 차수별 참석자와 술 안 마신 사람을 체크하면 한 사람당 낼 돈을 자동으로 계산하는 무료 정산기. 회식·동호회 뒷풀이 N분의 1 정산을 단톡방 링크로 공유하세요."
+      content="엔빵요정이 대신 계산해 드려요. 1차 밥, 2차 술, 3차 카페까지 차수별 참석자와 술 안 마신 사람을 체크하면 한 사람당 낼 돈을 자동으로 계산하는 무료 정산기. 회식·동호회 뒷풀이 N분의 1 정산을 단톡방 링크로 공유하세요."
     />
-    <link rel="canonical" href="https://split.wonseok.ai.kr/" />
+    <link rel="canonical" href="https://nbbang.wonseok.ai.kr/" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
     <meta name="robots" content="index,follow" />
 
     <!-- 카카오톡·SNS 링크 미리보기 -->
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="뒷풀이 정산기" />
+    <meta property="og:site_name" content="엔빵요정" />
     <meta property="og:locale" content="ko_KR" />
-    <meta property="og:url" content="https://split.wonseok.ai.kr/" />
-    <meta property="og:title" content="뒷풀이 정산기 - 술값·회식비 N빵 계산기" />
+    <meta property="og:url" content="https://nbbang.wonseok.ai.kr/" />
+    <meta property="og:title" content="엔빵요정 - 술값·회식비 N빵 정산 계산기" />
     <meta
       property="og:description"
       content="차수별 참석자, 술 안 마신 사람, 선후배 차등까지 자동 계산. 결과는 링크 하나로 단톡방에 공유."
     />
-    <meta property="og:image" content="https://split.wonseok.ai.kr/og.png" />
+    <meta property="og:image" content="https://nbbang.wonseok.ai.kr/og.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
@@ -34,8 +37,9 @@
       {
         "@context": "https://schema.org",
         "@type": "WebApplication",
-        "name": "뒷풀이 정산기",
-        "url": "https://split.wonseok.ai.kr/",
+        "name": "엔빵요정",
+        "alternateName": "뒷풀이 정산기",
+        "url": "https://nbbang.wonseok.ai.kr/",
         "description": "차수별 참석자와 술 안 마신 사람을 반영해 회식·뒷풀이 비용을 N분의 1로 나누는 정산 계산기",
         "applicationCategory": "FinanceApplication",
         "operatingSystem": "All",
@@ -558,8 +562,8 @@
   <body>
     <div class="wrap">
       <header>
-        <p class="kicker">N분의 1, 깔끔하게</p>
-        <h1>뒷풀이 <span>정산기</span></h1>
+        <p class="kicker">✨ N분의 1은 요정이 대신</p>
+        <h1>엔빵<span>요정</span></h1>
         <p>
           회식·뒷풀이 술값 N빵, 이제 계산기 두드리지 마세요. 차수마다
           밥·술·커피 중 무엇이었는지와 누가 있었는지 체크하면 알아서 나눠
@@ -673,6 +677,10 @@
           </details>
         </div>
       </section>
+
+      <footer class="note" style="text-align: center">
+        엔빵요정 · <a href="/privacy.html" style="color: inherit">개인정보처리방침</a>
+      </footer>
     </div>
 
     <script>
@@ -1259,6 +1267,10 @@
           } catch (e) {}
         }
       })();
+
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("/sw.js").catch(() => {});
+      }
     </script>
   </body>
 </html>
